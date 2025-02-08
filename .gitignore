@@ -74,4 +74,4 @@ tmp/
 
 # 仮想環境とデータ
 myenv/
-data.json
+state.json

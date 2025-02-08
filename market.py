@@ -1,7 +1,6 @@
 import random
 import math
 from datetime import datetime
-import streamlit as st
 from state import save_state
 
 def generate_news() -> (str, float):
@@ -65,8 +64,8 @@ def generate_news() -> (str, float):
     event = random.choice(news_events)
     return event["message"], event["multiplier"]
 
-def update_market_if_admin(state: dict) -> dict:
-    """admin ユーザーの場合に市場価格とニュースイベントを更新する"""
+def update_market(state: dict) -> dict:
+    """市場価格とニュースイベントを更新する（admin チェックなし）"""
     market = state["market"]
     current_price = market["current_price"]
 
