@@ -12,7 +12,7 @@ def process_buy_order(username: str, user_data: dict, market: dict, state: dict)
     if st.session_state.order_amount > user_data["money"]:
         st.session_state.order_amount = user_data["money"]
 
-    col1, col2 = st.columns([3, 1])
+    col1, col2, col3 = st.columns([3, 1, 1])
     with col1:
         order_amount = st.number_input(
             "取引金額（円）", 
@@ -24,31 +24,9 @@ def process_buy_order(username: str, user_data: dict, market: dict, state: dict)
         )
         st.session_state.order_amount = order_amount
     with col2:
-        max_bet_pressed = st.button("MAX BET", key=f"max_bet_{username}")
-    
-    # MAX BET 押下時は全額購入
-    if max_bet_pressed:
-        order_amount = user_data["money"]
-        entry_price = market["current_price"]
-        units = order_amount / entry_price
-        user_data["money"] -= order_amount
-        user_data["position"] = {
-            "entry_price": entry_price,
-            "order_amount": order_amount,
-            "units": units
-        }
-        st.success(
-            f"MAX BET 購入成立！ エントリー価格: {entry_price} 円, 注文金額: {order_amount} 円, 取得数量: {units:.4f} 単位"
-        )
-        state["users"][username] = user_data
-        save_state(state)
-        st.experimental_rerun()
-    
-    # 通常の「買う」ボタンによる処理
-    if st.button("買う", key=f"buy_button_{username}"):
-        if order_amount > user_data["money"]:
-            st.error("取引金額が資金を超えています。")
-        else:
+        # MAX BET 押下時は全額購入
+        if st.button("MAX BET", key=f"max_bet_{username}"):
+            order_amount = user_data["money"]
             entry_price = market["current_price"]
             units = order_amount / entry_price
             user_data["money"] -= order_amount
@@ -58,11 +36,29 @@ def process_buy_order(username: str, user_data: dict, market: dict, state: dict)
                 "units": units
             }
             st.success(
-                f"買い注文成立！ エントリー価格: {entry_price} 円, 注文金額: {order_amount} 円, 取得数量: {units:.4f} 単位"
+                f"MAX BET 購入成立！ エントリー価格: {entry_price} 円, 注文金額: {order_amount} 円, 取得数量: {units:.4f} 単位"
             )
             state["users"][username] = user_data
             save_state(state)
-            st.experimental_rerun()
+    with col3:
+        # 通常の「買う」ボタンによる処理
+        if st.button("買う", key=f"buy_button_{username}"):
+            if order_amount > user_data["money"]:
+                st.error("取引金額が資金を超えています。")
+            else:
+                entry_price = market["current_price"]
+                units = order_amount / entry_price
+                user_data["money"] -= order_amount
+                user_data["position"] = {
+                    "entry_price": entry_price,
+                    "order_amount": order_amount,
+                    "units": units
+                }
+                st.success(
+                    f"買い注文成立！ エントリー価格: {entry_price} 円, 注文金額: {order_amount} 円, 取得数量: {units:.4f} 単位"
+                )
+                state["users"][username] = user_data
+                save_state(state)
 
 def process_sell_order(username: str, user_data: dict, market: dict, state: dict) -> None:
     """保有中のポジションの売却注文処理"""
@@ -108,4 +104,3 @@ def process_sell_order(username: str, user_data: dict, market: dict, state: dict
                 }
             state["users"][username] = user_data
             save_state(state)
-            st.experimental_rerun()
