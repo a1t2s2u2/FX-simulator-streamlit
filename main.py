@@ -8,7 +8,7 @@ from charts import display_market_chart, display_news, display_ranking
 from orders import process_buy_order, process_sell_order
 
 # 更新速度 ミリ秒単位
-INTERVAL = 1000
+INTERVAL = 800
 
 def initialize_state_if_needed() -> dict:
     """
