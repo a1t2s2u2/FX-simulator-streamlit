@@ -3,12 +3,7 @@ import math
 from datetime import datetime
 from state import save_state
 
-import random
-
-import random
-
-
-def generate_news() -> (str, float):
+def generate_news():
     """各イベントごとに min, max を直接指定し、一様分布で multiplier を決定する。
     長期間の期待値（平均値）が1に近づくよう、左右対称のイベントは平均が1となるように設定しています。
     """
@@ -74,29 +69,33 @@ def generate_news() -> (str, float):
     return event["message"], event["multiplier"]
 
 def update_market(state: dict) -> dict:
-    """市場価格とニュースイベントを更新する（admin チェックなし）"""
+    """市場価格とニュースイベントを更新する"""
     market = state["market"]
     current_price = market["current_price"]
 
-    # GBM（幾何ブラウン運動）による基本変動
-    dt = 1
-    mu = 0.001
-    sigma = 0.02
-    z = random.gauss(0, 1)
-    new_price = current_price * math.exp((mu - 0.5 * sigma**2) * dt + sigma * math.sqrt(dt) * z)
+    # 最低価格を設定
+    if current_price < 1:
+        new_price = random.uniform(1.0, 5.0)
+    else:
+        # GBM（幾何ブラウン運動）による基本変動
+        dt = 1
+        mu = 0.001
+        sigma = 0.02
+        z = random.gauss(0, 1)
+        new_price = current_price * math.exp((mu - 0.5 * sigma**2) * dt + sigma * math.sqrt(dt) * z)
 
-    # 確率で突発的なジャンプ（±10% の変動）
-    if random.random() < 0.2:
-        jump_factor = random.uniform(0.8, 1.3)
-        new_price *= jump_factor
+        # 確率で突発的なジャンプ（±10% の変動）
+        if random.random() < 0.2:
+            jump_factor = random.uniform(0.8, 1.3)
+            new_price *= jump_factor
 
-    # 確率でニュースイベントを発生させる
-    if random.random() < 0.2:
-        news_message, news_multiplier = generate_news()
-        new_price *= news_multiplier
-        state["event"]["news_event"] = news_message
-        state["event"]["news_multiplier"] = news_multiplier
-        state["event"]["news_timestamp"] = datetime.now().timestamp()
+        # 確率でニュースイベントを発生させる
+        if random.random() < 0.2:
+            news_message, news_multiplier = generate_news()
+            new_price *= news_multiplier
+            state["event"]["news_event"] = news_message
+            state["event"]["news_multiplier"] = news_multiplier
+            state["event"]["news_timestamp"] = datetime.now().timestamp()
 
     new_price = round(new_price, 2)
     market["current_price"] = new_price
