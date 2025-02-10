@@ -41,10 +41,10 @@ def init_db():
 
 def load_state() -> dict:
     """
-    SQLite から状態を読み込む。  
+    SQLite から状態を読み込む。
     状態が存在しなければ初期状態を作成する。
     """
-    init_db()  # 初期化処理を実行（テーブル作成＆初期状態の挿入）
+    init_db()  # テーブル作成＆初期状態挿入
     try:
         conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
@@ -62,9 +62,9 @@ def load_state() -> dict:
 
 def save_state(state: dict) -> None:
     """
-    状態を SQLite に保存する（market.history は最新100件に制限）.
+    状態を SQLite に保存する。（market.history は最新 100 件に制限）
     """
-    # market.history を最新100件に制限する
+    # market.history を最新100件に制限
     if "market" in state and "history" in state["market"]:
         history = state["market"]["history"]
         if len(history) > 100:
