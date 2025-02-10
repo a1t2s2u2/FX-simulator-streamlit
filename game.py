@@ -104,7 +104,7 @@ def update_market(state: dict) -> dict:
     else:
         # 対数空間での平均回帰モデル
         target_price = 100.0
-        theta = 0.05
+        theta = 0.001 # 大きいほど基準にすぐ戻る
         dt = 1
         sigma = 0.02
         z = random.gauss(0, 1)
